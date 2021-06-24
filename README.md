@@ -9,7 +9,7 @@ First you need to install twarc and this plugin:
 pip install twarc
 pip install twarc-networks
 ```
-To create a static D3 visualiation using the subcommand `networks` that is supplied by twarc-networks:
+To create a static D3 visualization use the subcommand `networks` that is supplied by `twarc-networks`:
 ```
 twarc2 networks tweets.jsonl network.html
 ```
