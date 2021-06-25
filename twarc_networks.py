@@ -87,7 +87,7 @@ def networks(min_subgraph_size, max_subgraph_size, retweets, users, hashtags, in
                     # create user-centric network
                     if users:
                         for u in tweet["entities"].get("mentions", []):
-                            add(from_user_name, from_user_id, u['username'], u['id'], 'mention', created_at_date)
+                            add(from_user_name, from_user_id, u['username'], u['id'], 'mention', formatted_created_at_date)
 
                     # create hashtag colocation network
                     elif hashtags:
