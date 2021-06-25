@@ -1,4 +1,5 @@
 import time
+import datetime
 import json
 import networkx
 import itertools
@@ -79,10 +80,9 @@ def networks(min_subgraph_size, max_subgraph_size, retweets, users, hashtags, in
                     to_user_name = None
 
                     # standardize raw created at date to dd/MM/yyyy HH:mm:ss
-                    created_at_date = time.strftime(
-                        "%d/%m/%Y %H:%M:%S",
-                        time.strptime(tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y"),
-                    )
+                    unformatted_created_at_date = tweet['created_at'] # RFC 3339 format
+                    t = datetime.datetime.strptime(unformatted_created_at_date, "%Y-%m-%dT%H:%M:%S.%fZ")
+                    formatted_created_at_date = t.strftime("%d/%m/%Y %H:%M:%S")
 
                     # create user-centric network
                     if users:
