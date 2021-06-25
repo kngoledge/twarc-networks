@@ -20,7 +20,7 @@ from networkx import nx_pydot
 
 def networks(min_subgraph_size, max_subgraph_size, retweets, users, hashtags, infile, outfile):
     """
-    Extract tweet ids from Twitter API V2 JSON.
+    Create networks from Twitter API V2 JSON.
     """
 
     G = networkx.DiGraph()
@@ -72,12 +72,9 @@ def networks(min_subgraph_size, max_subgraph_size, retweets, users, hashtags, in
             try:
                 data = json.loads(line)
                 for tweet in ensure_flattened(data):
-                    # click.echo(tweet['id'], file=outfile)
                     # View more on data dictionary here: https://developer.twitter.com/en/docs/twitter-api/data-dictionary/object-model/tweet
                     from_user_name = tweet['author']['username']
                     from_user_id = tweet['author_id']
-                    # TODO from_tweet_id is never used
-                    from_tweet_id = tweet['id']
                     to_user_id = None
                     to_user_name = None
 
@@ -91,6 +88,7 @@ def networks(min_subgraph_size, max_subgraph_size, retweets, users, hashtags, in
                     if users:
                         for u in tweet["entities"].get("mentions", []):
                             add(from_user_name, from_user_id, u['username'], u['id'], 'mention', created_at_date)
+
                     # create hashtag colocation network
                     elif hashtags:
                         hashtags = tweet['entities'].get('hashtags', [])
@@ -99,6 +97,7 @@ def networks(min_subgraph_size, max_subgraph_size, retweets, users, hashtags, in
                             # source hashtag: u[0]['text']
                             # target hashtag: u[1]['text']
                             add('#' + u[0]['tag'], None, '#' + u[1]['tag'], None, 'hashtag')
+
                     # default to retweet/quote/reply network
                     else:
                         for referenced_tweet in tweet['referenced_tweets']:
