@@ -8,7 +8,7 @@ setuptools.setup(
     name='twarc-networks',
     version='0.0.6',
     url='https://github.com/kngoledge/twarc-networks',
-    author='kngoleedge',
+    author='kngoledge',
     author_email='kngoledge@gmail.com',
     py_modules=['twarc_networks'],
     description='A twarc plugin to create and visualize networks from tweet data',

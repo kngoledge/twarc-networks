@@ -1,5 +1,7 @@
 from click.testing import CliRunner
 from twarc_networks import networks
+import pathlib
+
 
 runner = CliRunner()
 test_data = pathlib.Path("test-data")
