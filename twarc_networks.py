@@ -1,13 +1,12 @@
-import sys
+import time
 import json
 import networkx
-import optparse
 import itertools
 import click
 
 from twarc import ensure_flattened
 from networkx import nx_pydot
-from networkx.readwrite import json_graph
+
 
 @click.command()
 @click.option('--min_subgraph_size', type=int, default=None, help='remove any subgraphs with a size smaller than this number')
@@ -15,8 +14,8 @@ from networkx.readwrite import json_graph
 @click.option('--retweets', is_flag=True, default=False, help='include retweets')
 @click.option('--users', is_flag=True, default=False, help='show user relations instead of tweet relations')
 @click.option('--hashtags', is_flag=True, default=False, help='show hashtag relations instead of tweet relations')
-@click.argument('infile', type=click.File('r'), default='-')
-@click.argument('outfile', type=click.File('w'), default='-')
+@click.argument('infile', type=click.File('r'))
+@click.argument('outfile', type=click.File('w'))
 
 
 def networks(min_subgraph_size, max_subgraph_size, retweets, users, hashtags, infile, outfile):
@@ -27,25 +26,25 @@ def networks(min_subgraph_size, max_subgraph_size, retweets, users, hashtags, in
     G = networkx.DiGraph()
 
     def add(from_user, from_id, to_user, to_id, type):
-    "adds a relation to the graph"
+        "adds a relation to the graph"
 
-    if (options.users or options.hashtags) and to_user:
-        G.add_node(from_user, screen_name=from_user)
-        G.add_node(to_user, screen_name=to_user)
+        if (users or hashtags) and to_user:
+            G.add_node(from_user, screen_name=from_user)
+            G.add_node(to_user, screen_name=to_user)
 
-        if G.has_edge(from_user, to_user):
-            weight = G[from_user][to_user]['weight'] + 1
-        else:
-            weight = 1
-        G.add_edge(from_user, to_user, type=type, weight=weight)
+            if G.has_edge(from_user, to_user):
+                weight = G[from_user][to_user]['weight'] + 1
+            else:
+                weight = 1
+            G.add_edge(from_user, to_user, type=type, weight=weight)
 
-    elif not options.users and to_id:
-        G.add_node(from_id, screen_name=from_user, type=type)
-        if to_user:
-            G.add_node(to_id, screen_name=to_user)
-        else:
-            G.add_node(to_id)
-        G.add_edge(from_id, to_id, type=type)
+        elif not users and to_id:
+            G.add_node(from_id, screen_name=from_user, type=type)
+            if to_user:
+                G.add_node(to_id, screen_name=to_user)
+            else:
+                G.add_node(to_id)
+            G.add_edge(from_id, to_id, type=type)
 
     def to_json(g):
         j = {"nodes": [], "links": []}
@@ -77,6 +76,7 @@ def networks(min_subgraph_size, max_subgraph_size, retweets, users, hashtags, in
                     # View more on data dictionary here: https://developer.twitter.com/en/docs/twitter-api/data-dictionary/object-model/tweet
                     from_user_name = tweet['author']['username']
                     from_user_id = tweet['author_id']
+                    # TODO from_tweet_id is never used
                     from_tweet_id = tweet['id']
                     to_user_id = None
                     to_user_name = None
@@ -124,15 +124,15 @@ def networks(min_subgraph_size, max_subgraph_size, retweets, users, hashtags, in
         G = g_copy
 
     # write to outfile
-    if outfile.endswith(".gexf"):
+    if outfile.name.endswith(".gexf"):
         networkx.write_gexf(G, outfile)
-    elif outfile.endswith(".gml"):
+    elif outfile.name.endswith(".gml"):
         networkx.write_gml(G, outfile)
-    elif outfile.endswith(".dot"):
+    elif outfile.name.endswith(".dot"):
         nx_pydot.write_dot(G, outfile)
-    elif outfile.endswith(".json"):
+    elif outfile.name.endswith(".json"):
         json.dump(to_json(G), open(outfile, "w"), indent=2)
-    elif outfile.endswith(".html"):
+    elif outfile.name.endswith(".html"):
         graph_data = json.dumps(to_json(G), indent=2)
         html = """<!DOCTYPE html>
 <meta charset="utf-8">
